@@ -21,179 +21,267 @@
 # 7. Statistica pentru date(nice to have)
 # 8. Interafata grafica(nice to have)
 
-import pyodbc
-import tkinter as tk
-from tkinter import ttk, messagebox
+# import pyodbc
+# import tkinter as tk
+# from tkinter import ttk, messagebox
 
-# Database connection and query classes
-class DatabaseConnection:
-    def __init__(self, connection_string):
-        self.connection_string = connection_string
-        self.connection = None
+# # Database connection and query classes
+# class DatabaseConnection:
+#     def __init__(self, connection_string):
+#         self.connection_string = connection_string
+#         self.connection = None
 
-    def connect(self):
-        try:
-            self.connection = pyodbc.connect(self.connection_string)
-            print("Connection successful!")
-        except pyodbc.Error as ex:
-            print(f"Error: {ex}")
-            self.connection = None
+#     def connect(self):
+#         try:
+#             self.connection = pyodbc.connect(self.connection_string)
+#             print("Connection successful!")
+#         except pyodbc.Error as ex:
+#             print(f"Error: {ex}")
+#             self.connection = None
 
-    def close(self):
-        if self.connection:
-            self.connection.close()
+#     def close(self):
+#         if self.connection:
+#             self.connection.close()
 
-class DataQuery:
-    def __init__(self, db_connection):
-        self.db_connection = db_connection
+# class DataQuery:
+#     def __init__(self, db_connection):
+#         self.db_connection = db_connection
 
-    def fetch_all(self, table_name):
-        cursor = self.db_connection.connection.cursor()
-        cursor.execute(f"SELECT * FROM {table_name}")
-        return cursor.fetchall()
+#     def fetch_all(self, table_name):
+#         cursor = self.db_connection.connection.cursor()
+#         cursor.execute(f"SELECT * FROM {table_name}")
+#         return cursor.fetchall()
 
-    def insert_identifier(self, identifier_name, description, identifier_type):
-        cursor = self.db_connection.connection.cursor()
-        cursor.execute("""
-            INSERT INTO Identifiers (identifier_name, description, identifier_type)
-            VALUES (?, ?, ?)
-        """, (identifier_name, description, identifier_type))
-        self.db_connection.connection.commit()
+#     def insert_identifier(self, identifier_name, description, identifier_type):
+#         cursor = self.db_connection.connection.cursor()
+#         cursor.execute("""
+#             INSERT INTO Identifiers (identifier_name, description, identifier_type)
+#             VALUES (?, ?, ?)
+#         """, (identifier_name, description, identifier_type))
+#         self.db_connection.connection.commit()
 
-    def delete_dependencies(self, table_name, identifier_column, identifier_value):
-        cursor = self.db_connection.connection.cursor()
+#     def delete_dependencies(self, table_name, identifier_column, identifier_value):
+#         cursor = self.db_connection.connection.cursor()
 
-        if table_name == "Identifiers":
-            cursor.execute("DELETE FROM Ownership WHERE identifier_name = ?", (identifier_value,))
-            cursor.execute("DELETE FROM Relationships WHERE from_identifier_name = ? OR to_identifier_name = ?", (identifier_value, identifier_value))
-            cursor.execute("DELETE FROM IdentifierCharacteristics WHERE identifier_name = ?", (identifier_value,))
+#         if table_name == "Identifiers":
+#             cursor.execute("DELETE FROM Ownership WHERE identifier_name = ?", (identifier_value,))
+#             cursor.execute("DELETE FROM Relationships WHERE from_identifier_name = ? OR to_identifier_name = ?", (identifier_value, identifier_value))
+#             cursor.execute("DELETE FROM IdentifierCharacteristics WHERE identifier_name = ?", (identifier_value,))
 
-        if table_name == "Countries":
-            cursor.execute("DELETE FROM ConsumerUnits WHERE country_name = ?", (identifier_value,))
+#         if table_name == "Countries":
+#             cursor.execute("DELETE FROM ConsumerUnits WHERE country_name = ?", (identifier_value,))
 
-        self.db_connection.connection.commit()
+#         self.db_connection.connection.commit()
 
-    def delete_entry(self, table_name, identifier_column, identifier_value):
-        self.delete_dependencies(table_name, identifier_column, identifier_value)
-        cursor = self.db_connection.connection.cursor()
-        cursor.execute(f"DELETE FROM {table_name} WHERE {identifier_column} = ?", (identifier_value,))
-        self.db_connection.connection.commit()
+#     def delete_entry(self, table_name, identifier_column, identifier_value):
+#         self.delete_dependencies(table_name, identifier_column, identifier_value)
+#         cursor = self.db_connection.connection.cursor()
+#         cursor.execute(f"DELETE FROM {table_name} WHERE {identifier_column} = ?", (identifier_value,))
+#         self.db_connection.connection.commit()
 
-# Tkinter application class
-class Application:
-    def __init__(self, root, db_connection):
-        self.root = root
-        self.db_connection = db_connection
-        self.notebook = ttk.Notebook(root)
-        self.create_tabs()
-        self.notebook.pack(expand=1, fill='both')
+# # Tkinter application class
+# class Application:
+#     def __init__(self, root, db_connection):
+#         self.root = root
+#         self.db_connection = db_connection
+#         self.notebook = ttk.Notebook(root)
+#         self.create_tabs()
+#         self.notebook.pack(expand=1, fill='both')
 
-    def create_tabs(self):
-        self.create_identifiers_tab()
-        self.create_generic_tab("Countries", ["Name", "ISO Code", "Short Code"], "name")
-        self.create_generic_tab("ConsumerUnits", ["Number of Consumers", "Country Name"], "country_name")
-        self.create_generic_tab("Ownership", ["Identifier Name", "Originator First Name", "User ID"], "identifier_name")
-        self.create_generic_tab("Relationships", ["From Identifier", "To Identifier", "Relationship"], "from_identifier_name")
-        self.create_generic_tab("Characteristics", ["Master Name", "Name", "Specifics"], "master_name")
-        self.create_generic_tab("IdentifierCharacteristics", ["Identifier Name", "Master Name", "Characteristic Name"], "identifier_name")
+#     def create_tabs(self):
+#         self.create_identifiers_tab()
+#         self.create_generic_tab("Countries", ["Name", "ISO Code", "Short Code"], "name")
+#         self.create_generic_tab("ConsumerUnits", ["Number of Consumers", "Country Name"], "country_name")
+#         self.create_generic_tab("Ownership", ["Identifier Name", "Originator First Name", "User ID"], "identifier_name")
+#         self.create_generic_tab("Relationships", ["From Identifier", "To Identifier", "Relationship"], "from_identifier_name")
+#         self.create_generic_tab("Characteristics", ["Master Name", "Name", "Specifics"], "master_name")
+#         self.create_generic_tab("IdentifierCharacteristics", ["Identifier Name", "Master Name", "Characteristic Name"], "identifier_name")
 
-    def create_identifiers_tab(self):
-        frame = ttk.Frame(self.notebook)
-        self.notebook.add(frame, text="Identifiers")
+#     def create_identifiers_tab(self):
+#         frame = ttk.Frame(self.notebook)
+#         self.notebook.add(frame, text="Identifiers")
 
-        self.identifier_tree = ttk.Treeview(frame, columns=('Identifier', 'Description', 'Type'), show='headings')
-        self.identifier_tree.heading('Identifier', text='Identifier')
-        self.identifier_tree.heading('Description', text='Description')
-        self.identifier_tree.heading('Type', text='Type')
-        self.identifier_tree.pack(expand=True, fill='both')
+#         self.identifier_tree = ttk.Treeview(frame, columns=('Identifier', 'Description', 'Type'), show='headings')
+#         self.identifier_tree.heading('Identifier', text='Identifier')
+#         self.identifier_tree.heading('Description', text='Description')
+#         self.identifier_tree.heading('Type', text='Type')
+#         self.identifier_tree.pack(expand=True, fill='both')
 
-        self.fetch_identifiers()
+#         self.fetch_identifiers()
 
-        entry_frame = ttk.Frame(frame)
-        entry_frame.pack(pady=10)
+#         entry_frame = ttk.Frame(frame)
+#         entry_frame.pack(pady=10)
 
-        ttk.Label(entry_frame, text="Identifier Name:").grid(row=0, column=0)
-        self.identifier_name_entry = ttk.Entry(entry_frame)
-        self.identifier_name_entry.grid(row=0, column=1)
+#         ttk.Label(entry_frame, text="Identifier Name:").grid(row=0, column=0)
+#         self.identifier_name_entry = ttk.Entry(entry_frame)
+#         self.identifier_name_entry.grid(row=0, column=1)
 
-        ttk.Label(entry_frame, text="Description:").grid(row=1, column=0)
-        self.description_entry = ttk.Entry(entry_frame)
-        self.description_entry.grid(row=1, column=1)
+#         ttk.Label(entry_frame, text="Description:").grid(row=1, column=0)
+#         self.description_entry = ttk.Entry(entry_frame)
+#         self.description_entry.grid(row=1, column=1)
 
-        ttk.Label(entry_frame, text="Type:").grid(row=2, column=0)
-        self.type_entry = ttk.Entry(entry_frame)
-        self.type_entry.grid(row=2, column=1)
+#         ttk.Label(entry_frame, text="Type:").grid(row=2, column=0)
+#         self.type_entry = ttk.Entry(entry_frame)
+#         self.type_entry.grid(row=2, column=1)
 
-        ttk.Button(entry_frame, text="Add Identifier", command=self.add_identifier).grid(row=3, columnspan=2, pady=5)
-        ttk.Button(frame, text="Delete Selected", command=lambda: self.delete_entry(self.identifier_tree, "Identifiers", "identifier_name")).pack(pady=5)
+#         ttk.Button(entry_frame, text="Add Identifier", command=self.add_identifier).grid(row=3, columnspan=2, pady=5)
+#         ttk.Button(frame, text="Delete Selected", command=lambda: self.delete_entry(self.identifier_tree, "Identifiers", "identifier_name")).pack(pady=5)
 
-    def fetch_identifiers(self):
-        data_query = DataQuery(self.db_connection)
-        data = data_query.fetch_all("Identifiers")
-        for row in data:
-            self.identifier_tree.insert("", tk.END, values=[str(item) for item in row])
+#     def fetch_identifiers(self):
+#         data_query = DataQuery(self.db_connection)
+#         data = data_query.fetch_all("Identifiers")
+#         for row in data:
+#             self.identifier_tree.insert("", tk.END, values=[str(item) for item in row])
 
-    def add_identifier(self):
-        identifier_name = self.identifier_name_entry.get()
-        description = self.description_entry.get()
-        identifier_type = self.type_entry.get()
+#     def add_identifier(self):
+#         identifier_name = self.identifier_name_entry.get()
+#         description = self.description_entry.get()
+#         identifier_type = self.type_entry.get()
 
-        if identifier_name and description and identifier_type:
-            data_query = DataQuery(self.db_connection)
-            data_query.insert_identifier(identifier_name, description, identifier_type)
-            self.identifier_tree.insert("", tk.END, values=(identifier_name, description, identifier_type))
-            self.identifier_name_entry.delete(0, tk.END)
-            self.description_entry.delete(0, tk.END)
-            self.type_entry.delete(0, tk.END)
-        else:
-            messagebox.showwarning("Input Error", "All fields are required!")
+#         if identifier_name and description and identifier_type:
+#             data_query = DataQuery(self.db_connection)
+#             data_query.insert_identifier(identifier_name, description, identifier_type)
+#             self.identifier_tree.insert("", tk.END, values=(identifier_name, description, identifier_type))
+#             self.identifier_name_entry.delete(0, tk.END)
+#             self.description_entry.delete(0, tk.END)
+#             self.type_entry.delete(0, tk.END)
+#         else:
+#             messagebox.showwarning("Input Error", "All fields are required!")
 
-    def create_generic_tab(self, table_name, columns, identifier_column):
-        frame = ttk.Frame(self.notebook)
-        self.notebook.add(frame, text=table_name)
+#     def create_generic_tab(self, table_name, columns, identifier_column):
+#         frame = ttk.Frame(self.notebook)
+#         self.notebook.add(frame, text=table_name)
 
-        tree = ttk.Treeview(frame, columns=columns, show='headings')
-        for col in columns:
-            tree.heading(col, text=col)
-        tree.pack(expand=True, fill='both')
+#         tree = ttk.Treeview(frame, columns=columns, show='headings')
+#         for col in columns:
+#             tree.heading(col, text=col)
+#         tree.pack(expand=True, fill='both')
 
-        data_query = DataQuery(self.db_connection)
-        data = data_query.fetch_all(table_name)
-        for row in data:
-            tree.insert("", tk.END, values=[str(item) for item in row])
+#         data_query = DataQuery(self.db_connection)
+#         data = data_query.fetch_all(table_name)
+#         for row in data:
+#             tree.insert("", tk.END, values=[str(item) for item in row])
 
-        ttk.Button(frame, text="Delete Selected", command=lambda: self.delete_entry(tree, table_name, identifier_column)).pack(pady=5)
+#         ttk.Button(frame, text="Delete Selected", command=lambda: self.delete_entry(tree, table_name, identifier_column)).pack(pady=5)
 
-    def delete_entry(self, tree, table_name, identifier_column):
-        selected_item = tree.selection()
-        if not selected_item:
-            messagebox.showerror("Error", "No item selected")
-            return
-        item_values = tree.item(selected_item, "values")
-        identifier_value = item_values[0]
+#     def delete_entry(self, tree, table_name, identifier_column):
+#         selected_item = tree.selection()
+#         if not selected_item:
+#             messagebox.showerror("Error", "No item selected")
+#             return
+#         item_values = tree.item(selected_item, "values")
+#         identifier_value = item_values[0]
 
-        data_query = DataQuery(self.db_connection)
-        data_query.delete_entry(table_name, identifier_column, identifier_value)
-        tree.delete(selected_item)
+#         data_query = DataQuery(self.db_connection)
+#         data_query.delete_entry(table_name, identifier_column, identifier_value)
+#         tree.delete(selected_item)
 
-# Main function to run the application
-def run_app():
-    connection_string = (
-        "Driver={ODBC Driver 17 for SQL Server};"
-        "Server=COCEA\\SQLEXPRESS;"
-        "Database=proiect;"
-        "Trusted_Connection=yes;"
-    )
+# # Main function to run the application
+# def run_app():
+#     connection_string = (
+#         "Driver={ODBC Driver 17 for SQL Server};"
+#         "Server=COCEA\\SQLEXPRESS;"
+#         "Database=proiect;"
+#         "Trusted_Connection=yes;"
+#     )
 
-    db_connection = DatabaseConnection(connection_string)
-    db_connection.connect()
+#     db_connection = DatabaseConnection(connection_string)
+#     db_connection.connect()
 
-    root = tk.Tk()
-    root.title("Database Viewer")
-    app = Application(root, db_connection)
-    root.mainloop()
+#     root = tk.Tk()
+#     root.title("Database Viewer")
+#     app = Application(root, db_connection)
+#     root.mainloop()
 
-    db_connection.close()
+#     db_connection.close()
 
-if __name__ == "__main__":
-    run_app()
+# if __name__ == "__main__":
+#     run_app()
+
+# from sqlalchemy import create_engine, Column, Integer, String , Text , ForeignKey , ForeignKeyConstraint , DECIMAL
+# from sqlalchemy.orm import declarative_base, sessionmaker , relationship
+# Base = declarative_base()   
+
+
+# class Identifier(Base):
+#     __tablename__ = 'Identifiers'
+    
+#     identifier_name = Column(String(255), primary_key=True)
+#     description = Column(Text)
+#     identifier_type = Column(String(255))
+
+# class Country(Base):
+#     __tablename__ = 'Countries'
+    
+#     name = Column(String(255), primary_key=True)
+#     iso_code = Column(String(255))
+#     short_code = Column(String(255))
+
+# class ConsumerUnit(Base):
+#     __tablename__ = 'ConsumerUnits'
+    
+#     number_of_consumers = Column(Integer, primary_key=True)
+#     country_name = Column(String(255), ForeignKey('Countries.name'), primary_key=True)
+#     country = relationship('Country', back_populates='consumer_units')
+
+# Country.consumer_units = relationship('ConsumerUnit', order_by=ConsumerUnit.number_of_consumers, back_populates='country')
+
+# class Ownership(Base):
+#     __tablename__ = 'Ownership'
+    
+#     identifier_name = Column(String(255), ForeignKey('Identifiers.identifier_name'), primary_key=True)
+#     originator_first_name = Column(String(255))
+#     originator_last_name = Column(String(255))
+#     user_id_tnumber = Column(String(255), primary_key=True)
+#     user_id_intranet = Column(String(255))
+#     email = Column(String(255))
+#     owner_first_name = Column(String(255))
+#     owner_last_name = Column(String(255))
+#     identifier = relationship('Identifier')
+
+# class Relationship(Base):
+#     __tablename__ = 'Relationships'
+    
+#     from_identifier_name = Column(String(255), ForeignKey('Identifiers.identifier_name'), primary_key=True)
+#     to_identifier_name = Column(String(255), ForeignKey('Identifiers.identifier_name'), primary_key=True)
+#     relationship_name = Column(String(255))
+#     from_identifier = relationship('Identifier', foreign_keys=[from_identifier_name])
+#     to_identifier = relationship('Identifier', foreign_keys=[to_identifier_name])
+
+# class Characteristic(Base):
+#     __tablename__ = 'Characteristics'
+    
+#     master_name = Column(String(255), primary_key=True)
+#     name = Column(String(255), primary_key=True)
+#     specifics = Column(String(255))
+#     action_required = Column(String(255))
+#     report_type = Column(String(255))
+#     data_type = Column(String(255))
+#     lower_routine_release_limit = Column(DECIMAL(10, 2))
+#     lower_limit = Column(DECIMAL(10, 2))
+#     lower_target = Column(DECIMAL(10, 2))
+#     target = Column(DECIMAL(10, 2))
+#     upper_target = Column(DECIMAL(10, 2))
+#     upper_limit = Column(DECIMAL(10, 2))
+#     upper_routine_release_limit = Column(DECIMAL(10, 2))
+#     test_frequency = Column(Integer)
+#     precision = Column(Integer)
+#     engineering_unit = Column(String(255))
+
+# class IdentifierCharacteristic(Base):
+#     __tablename__= 'IdentifierCharacteristics'
+
+#     identifier_name = Column(String(255), ForeignKey('Identifiers.identifier_name'), primary_key=True)
+#     master_name = Column(String(255), primary_key=True)
+#     characteristic_name = Column(String(255), primary_key=True)
+
+#     _table_args_ = (
+#         ForeignKeyConstraint(
+#             ['master_name', 'characteristic_name'],
+#             ['Characteristics.master_name', 'Characteristics.name']
+#         ),
+#     )
+
+#     identifier = relationship('Identifier')
+#     characteristic = relationship('Characteristic')
+
